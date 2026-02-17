@@ -1,0 +1,11 @@
+services:
+  telegram-notify:
+    # Use pre-built image from GitHub Container Registry
+    # To build locally instead, uncomment 'build: .' and remove 'image:' line
+    image: ghcr.io/neonmarble/telegram_notify:latest
+    # build: .
+    env_file:
+      - .env
+    environment:
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:?TELEGRAM_CHAT_ID is required}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?TELEGRAM_BOT_TOKEN is required}

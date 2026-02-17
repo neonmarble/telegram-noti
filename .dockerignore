@@ -1,0 +1,18 @@
+# Git files
+.git
+.gitignore
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+
+# Documentation
+README.md
+
+# Session state
+.copilot
+
+# OS files
+.DS_Store
+Thumbs.db
