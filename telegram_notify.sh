@@ -26,25 +26,31 @@ if [ -z "$CHAT_ID" ] || [ -z "$BOT_TOKEN" ]; then
     exit 1
 fi
 
-# URL encode the message
-ENCODED_MESSAGE=$(printf '%s' "$MESSAGE" | jq -sRr @uri)
-
 # Send the notification
 API_URL="https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
-FULL_URL="$API_URL?chat_id=$CHAT_ID&text=$ENCODED_MESSAGE&parse_mode=HTML"
 
 echo "Sending notification to Telegram..."
 
-# Make the API call
-RESPONSE=$(curl -s -X GET "$FULL_URL")
+# Prepare JSON payload
+JSON_PAYLOAD=$(jq -n \
+    --arg chat_id "$CHAT_ID" \
+    --arg text "$MESSAGE" \
+    --arg parse_mode "HTML" \
+    '{chat_id: $chat_id, text: $text, parse_mode: $parse_mode}')
+
+# Make the API call using POST with JSON body (secure method)
+RESPONSE=$(curl -s -X POST "$API_URL" \
+    -H "Content-Type: application/json" \
+    -d "$JSON_PAYLOAD")
 
 # Check if the message was sent successfully
 if echo "$RESPONSE" | jq -e '.ok' > /dev/null 2>&1; then
     echo "✅ Notification sent successfully!"
-    echo "Message: $MESSAGE"
 else
     echo "❌ Failed to send notification"
-    echo "Response: $RESPONSE"
+    # Only log non-sensitive error information
+    ERROR=$(echo "$RESPONSE" | jq -r '.description // "Unknown error"')
+    echo "Error: $ERROR"
     exit 1
 fi
 
